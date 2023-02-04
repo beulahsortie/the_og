@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="jq.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+    <div id="container">
+        <h1>Application Form</h1>
+        <form id="theform">
+        <div>
+            <label for="firstname">First Name : </label>
+            <input id="firstname"/>
+        </div>
+        <br/>
+        <div>
+            <label for="lastname">Last Name : </label>
+            <input id="lastname"/>
+        </div>
+        <br>
+        <div>
+            <label for="rollnumber">Roll Number : </label>
+            <input id="rollnumber"/>
+        </div>
+        <br>
+        <div>
+            <label for="degree">Degree : </label>
+            <input id="degree"/>
+        </div>
+        <br>
+        <div>
+            <label for="dob">DOB : </label>
+            <input type="date" id="dob"/>
+        </div>
+        <br>
+        <button id="submitbtn" type="submit">Submit</button>
+        </form>
+    </div>
+    <br>
+    <br>
+    <table id="tableblock" class="tabledesign">
+        <tr>
+            <th class="heads">Roll Number</th>
+            <th class="heads">Name</th>
+            <th class="heads">Age</th>
+            <th class="heads">Degree</th>
+            
+        </tr>
+        <hr/>
+    </table>
+    <br>
+    <br>
+    <hr/>
+    <h1 class="entermarks">Enter Marks:</h1>
+        
+    <table id="marksblock" class="tabledesign">
+        <tr>
+            <th class="heads">Roll N</th>
+            <th class="heads">Name</th>
+            <th class="heads">sub1</th>
+            <th class="heads">sub2</th>
+            <th class="heads">sub3</th>
+            <th class="heads">sub4</th>
+            <th class="heads">total</th>
+        </tr>
+    </table>
+    <div id="marks" class="marks">
+        <select class="dropdownselect" id="dropdown">
+            <option hidden selected>Select one...</option>
+        </select>
+        <div class="marksheet" id="marksheet">
+            <span id="marksname" class="marksname space"></span>
+            <input id="one" type="number" class="marksinput" value="0"/>
+            <input id="two" type="number" class="marksinput" value="0"/>
+            <input id="three" type="number" class="marksinput" value="0"/>
+            <input id="four" type="number" class="marksinput" value="0"/>
+            <span id="total" class="marksinput"></span>
+            <button id="savebtn" class="savebtn">save</button>
+        </div>
+    </div>
+    <br>
+    <br>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            let list=[];
+            let marksList=[];
+            let editing=false;
+            let indEl = 1;
+            let holder = 0;
+            let holderroll=0;
+            let selectedroll;
+            let dropelementid=1000;
+            let toggler=false;
+            let theEditsId;
+          $("#theform").submit(function(){
+            
+            let firstname = $("#firstname").val();
+            let lastname = $("#lastname").val();
+            let rollnumber = $("#rollnumber").val();
+            let degree = $("#degree").val();
+            let dob = $("#dob").val();
+            
+
+            event.preventDefault();
+            if (firstname === "" || lastname === "" || degree === "" || rollnumber === "" ){
+                alert("Fill All values");
+                return;
+            }
+
+            let checker = list.some((e)=> e.rn === rollnumber);
+            changevalues = function() { 
+                for(let i=0; i<list.length; i++){
+                    if(list[i].ind === holder){
+                        list[i].fv = firstname,
+                        list[i].ln = lastname,
+                        list[i].de = degree,
+                        list[i].rn = rollnumber,
+                        list[i].by = new Date(dob).getFullYear(),
+                        list[i].bd = dob
+                    }
+                }
+
+                for (let element of list){
+                    partdelete(element.ind);
+                }
+                for (let element of list){
+                    create(element);
+                }
+
+                if(marksList.length!==0){
+                    for(let i=0; i<marksList.length; i++){
+                        if(marksList[i].roll === holderroll){
+                            marksList[i].N = firstname+" "+lastname
+                        }
+                    }
+                    for (let element of marksList){
+                        partMarksDelete(element.roll);
+                    }
+                    for (let element of marksList){
+                        let{roll,N,s1,s2,s3,s4,t}=element;
+                        createmarkselements(roll,N,s1,s2,s3,s4,t);
+                    }
+                }
+            }
+
+            if(checker===true || holder!==0){
+                if(!editing){
+                    alert("Candidate with this roll number already Exists");
+                    return;
+                }
+                else if(editing){
+                    let newlist=list.filter((num)=>num.rn!==holderroll);
+                    let rollcheck = newlist.some((e)=> e.rn === rollnumber);
+                    if(rollcheck){
+                        alert("Candidate with this roll number already Exists");
+                    return;
+                    }
+                    changevalues();
+                
+                    $('#firstname').val("");
+                    $('#lastname').val("");
+                    $('#degree').val("");
+                    $('#rollnumber').val("");
+                    $('#dob').val(tDate());
+                
+                    editing = false;
+                    holder = 0;
+                    holderroll = 0;
+                    return;
+                }
+            }
+            editing=false;
+            let fnValue=firstname;
+            let lnValue=lastname;
+            let degValue=degree;
+            let rollnumberValue=rollnumber;
+            let datenum = dob;
+            const d = new Date(datenum);
+            let borndate = d.getDate();
+            let bornmonth = d.getMonth();
+            let bornyear = d.getFullYear();
+            const todaysdate = new Date();
+            let nowdate = todaysdate.getFullYear();
+            let newelement={
+                ind: indEl+1,
+                fv: fnValue,
+                ln: lnValue,
+                de: degValue,
+                rn: rollnumberValue,
+                nd: nowdate,
+                bd: datenum,
+                by: bornyear,
+            };
+            indEl=indEl+1;
+            list.push(newelement);
+            create(newelement);
+            
+            $('#firstname').val("");
+            $('#lastname').val("");
+            $('#degree').val("");
+            $('#rollnumber').val("");
+            $('#dob').val(tDate());
+
+          });
+
+          function partdelete(inde){
+            $(`#${inde}`).remove();
+            let deleteElementIndex = list.findIndex(function(each){
+                if(each.ind === inde){
+                    return true;
+                }else{
+                    return false;
+                }
+            });
+            let rollofindex = marksList[deleteElementIndex].roll;
+            let dropelementiddeletion = rollofindex + 1000 ;
+            $(`#${dropelementiddeletion}`).remove();
+          }
+
+          function tDate(){
+            let thedateformat = new Date();
+            let theyear = thedateformat.getFullYear();
+            let themonth = thedateformat.getMonth()+1;
+            if(themonth<10){
+                themonth=`0${themonth}`;
+            }
+            let thedate = thedateformat.getDate();
+            if(thedate<10){
+                thedate=`0${thedate}`;
+            }
+            return[
+                theyear,
+                themonth,
+                thedate,
+            ].join('-');
+          }
+
+          function formatDate(bd){
+            let thedateformat = new Date(bd);
+            let theyear = thedateformat.getFullYear();
+            let themonth = thedateformat.getMonth()+1;
+            if(themonth<10){
+                themonth=`0${themonth}`;
+            }
+            let thedate = thedateformat.getDate();
+            if(thedate<10){
+                thedate=`0${thedate}`;
+            }
+            return[
+                theyear,
+                themonth,
+                thedate,
+            ].join('-');
+          }
+
+          function onEdit(element){
+                console.log("edit start");
+                let {ind,fv,ln,de,rn,nd,bd}=element;
+                holder=ind;
+                
+                holderroll=rn;
+                $('#firstname').val(fv);
+                $('#lastname').val(ln);
+                $('#degree').val(de);
+                $('#rollnumber').val(rn);
+                $('#dob').val(formatDate(bd));
+                editing=true;
+                console.log(`end of editing `);
+          }
+
+
+          function onDelete(inde){
+            $(`#${inde}`).remove();
+            
+            console.log("on deleting")
+            let deleteElementIndex = list.findIndex(function(each){
+                if(each.ind === inde){
+                    return true;
+                }else{
+                    return false;
+                }
+            });
+
+            list.splice(deleteElementIndex,1);
+          }
+
+          $("#submitbtn").click(function() {
+            let t = $(this).attr("id");
+            console.log(t);
+          });
+
+          $(document).on('click','.mainedit',function(){
+            var id = $(this).attr("id"); 
+            let num = id.slice(4);
+
+            let filteredlist = list.filter((a)=>a.ind==num);
+
+            let element = filteredlist[0];
+
+            let {ind,fv,ln,de,rn,nd,bd}=element;
+            holder=ind;
+            
+            holderroll=rn;
+            $('#firstname').val(fv);
+            $('#lastname').val(ln);
+            $('#degree').val(de);
+            $('#rollnumber').val(rn);
+            $('#dob').val(formatDate(bd));
+            editing=true;
+          });
+
+          $(document).on('click','.maindelete',function(){
+            var id = $(this).attr("id"); 
+            let num = parseInt(id.slice(4));
+            $(`#${num}`).remove();
+
+            let deleteElementIndex = list.findIndex(function(each){
+                if(each.ind === num){
+                    return true;
+                }else{
+                    return false;
+                }
+            });
+
+            let rollofindex = list[deleteElementIndex].rn;
+            let dropelementiddeletion = rollofindex + 1000 ;
+            
+            
+            $(`#${rollofindex}`).remove();
+            $(`#${dropelementiddeletion}`).remove();
+
+            marksList.splice(deleteElementIndex,1);
+
+            list.splice(deleteElementIndex,1);
+
+          });
+
+          $(document).on('click','.marksedit',function(){
+            var id = $(this).attr("id"); 
+            let num = id.slice(5);
+            let filteredlist = marksList.filter((a)=>a.roll==num);
+            let element = filteredlist[0];
+            let {roll,N,s1,s2,s3,s4,t}=element;
+            let thevalue=roll;
+                $('#marksname').text(N);
+                $('#one').val(s1);
+                $('#two').val(s2);
+                $('#three').val(s3);
+                $('#four').val(s4);
+                $('#total').text(t);
+                let dropelementidselection = roll + 1000 ;
+                $(`#${dropelementidselection}`).prop('selected', true);
+                for (let ele of marksList){
+                    partMarksDelete(ele.roll);
+                }
+                for (let ele of marksList){
+                    let{roll,N,s1,s2,s3,s4,t}=ele;
+                    if(ele.roll===thevalue){
+                    
+                        createmarkselementstoggler(roll,N,s1,s2,s3,s4,t);
+                        toggler=true;
+                    }
+                    else{
+                        createmarkselements(roll,N,s1,s2,s3,s4,t);
+                    }
+                
+                }
+            
+          });
+
+          function partMarksDelete(inde){
+            $(`#${inde}`).remove();
+            $(`#${inde+5000}`).remove();
+          }
+
+          $(document).on('click','.marksdelete',function(){
+            var id = $(this).attr("id"); 
+            let inde = parseInt(id.slice(5));
+                $(`#${inde}`).remove();
+                $(`#${inde+5000}`).remove();
+                let deleteElementIndex = marksList.findIndex(function(each){
+                    if(each.roll === inde){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                });
+                marksList.splice(deleteElementIndex,1);
+          });
+
+            function parsezero(val){
+                if(val === "" || val === NaN){
+                    return 0;
+                }
+                return val;
+            }
+
+            function onChangeNums(){
+                let sub1val=Number($('#one').val());
+                let sub2val = Number($('#two').val());
+                let sub3val=Number($('#three').val());
+                let sub4val=Number($('#four').val());
+
+                
+                console.log(`one = ${sub1val}`);
+                console.log(`two = ${sub2val}`);
+                console.log(`three = ${sub3val}`);
+                console.log(`four = ${sub4val}`);
+
+                $('#total').text(sub1val+sub2val+sub3val+sub4val);
+            }
+
+
+            $("#one").change(function () {
+                onChangeNums();
+            });
+            
+            $("#two").change(function () {
+                onChangeNums();
+            });
+
+            $("#three").change(function () {
+                onChangeNums();
+            });
+
+            $("#four").change(function () {
+                onChangeNums();
+            });
+
+          function create(element){
+            let {ind,fv,ln,de,rn,nd,bd,by}=element;
+            
+            $("#tableblock").append(`<tr id=${ind}></tr>`);
+
+            $(`#${ind}`).append(`<td class="parastable">${rn}</td>`);
+
+            $(`#${ind}`).append(`<td class="parastable">${fv+" "+ln}</td>`);
+
+            $(`#${ind}`).append(`<td class="parastable">${nd-by}</td>`);
+
+            $(`#${ind}`).append(`<td class="parastable">${de}</td>`);
+        
+            $(`#${ind}`).append(`<td class="parastable"><button id="dele${ind}" class="maindelete">del</button></td>`);
+
+            $(`#${ind}`).append(`<td class="parastable" ><button id="edit${ind}" class="mainedit">edit</button></td>`);
+
+            $(`#dropdown`).append(`<option value=${rn} class="dropdownclass" id=${rn+1000}>${rn}</option>`);
+            
+          }
+
+          $("#dropdown").change(function (event) {
+            let thevalue = $(this).val();
+            let slname = list.filter((each)=>each.rn === thevalue);
+            console.log("inside dropdown");
+            console.log("inside dropdown"+`${thevalue}`);
+            $('#marksname').text(slname[0].fv+" "+slname[0].ln);
+
+            let marksListItem = marksList.filter((a)=>a.roll === thevalue);
+            if(marksListItem.length === 1){
+                let {roll,N,s1,s2,s3,s4,t} = marksListItem[0];
+                $('#marksname').text(N);
+                $('#one').val(s1);
+                $('#two').val(s2);
+                $('#three').val(s3);
+                $('#four').val(s4);
+                $('#total').text(t);
+            }
+          });
+
+          function createmarkselementstoggler(thevalue,mname,sub1val,sub2val,sub3val,sub4val,totalval){
+
+                $("#marksblock").append(`<tr id=${thevalue} style="display:none;"></tr>`);
+
+                $(`#${thevalue}`).append(`<td class="parastable">${thevalue}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable">${mname}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable">${sub1val}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable">${sub2val}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable">${sub3val}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable">${sub4val}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable">${totalval}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable"><button id="tedit${thevalue}" class="marksedit">edit</button></td>`);
+                $(`#${thevalue}`).append(`<td class="parastable"><button id="tdele${thevalue}" class="marksdelete">del</button></td>`);
+
+
+                $("#marksblock").append(`<tr id=${thevalue+5000} style="display:table-row"></tr>`);
+                $(`#${thevalue+5000}`).append(`<td class="parastable" >${thevalue}</td>`);
+                $(`#${thevalue+5000}`).append(`<td class="parastable">${mname}</td>`);
+                $(`#${thevalue+5000}`).append(`<td class="parastable"><input id="onetoggle${thevalue}" class="parastabletoggle"/></td>`);
+                $(`#onetoggle${thevalue}`).val(sub1val);
+                $(`#${thevalue+5000}`).append(`<td class="parastable"><input id="twotoggle${thevalue}" class="parastabletoggle"/></td>`);
+                $(`#twotoggle${thevalue}`).val(sub2val);
+                $(`#${thevalue+5000}`).append(`<td class="parastable"><input id="threetoggle${thevalue}" class="parastabletoggle"/></td>`);
+                $(`#threetoggle${thevalue}`).val(sub3val);
+                $(`#${thevalue+5000}`).append(`<td class="parastable"><input id="fourtoggle${thevalue}" class="parastabletoggle"/></td>`);
+                $(`#fourtoggle${thevalue}`).val(sub4val);
+                $(`#${thevalue+5000}`).append(`<td class="parastable" id="total${thevalue}">${totalval}</td>`);
+                $(`#${thevalue+5000}`).append(`<td class="parastable"><button id="tsave${thevalue}" class="markssave">save</button></td>`);
+            
+          }
+
+          function createmarkselements(thevalue,mname,sub1val,sub2val,sub3val,sub4val,totalval){
+
+                $("#marksblock").append(`<tr id=${thevalue}></tr>`);
+
+                $(`#${thevalue}`).append(`<td class="parastable">${thevalue}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable">${mname}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable">${sub1val}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable">${sub2val}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable">${sub3val}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable">${sub4val}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable">${totalval}</td>`);
+                $(`#${thevalue}`).append(`<td class="parastable"><button id="medit${thevalue}" class="marksedit">edit</button></td>`);
+                $(`#${thevalue}`).append(`<td class="parastable"><button id="mdele${thevalue}" class="marksdelete">del</button></td>`);
+                
+                $("#marksblock").append(`<tr id=${thevalue+5000} style="display:none;"></tr>`);
+                $(`#${thevalue+5000}`).append(`<td class="parastable" >${thevalue}</td>`);
+                $(`#${thevalue+5000}`).append(`<td class="parastable">${mname}</td>`);
+                $(`#${thevalue+5000}`).append(`<td class="parastable"><input id="onetoggle${thevalue}" class="parastabletoggle"/></td>`);
+                $(`#onetoggle${thevalue}`).val(sub1val);
+                $(`#${thevalue+5000}`).append(`<td class="parastable"><input id="twotoggle${thevalue}" class="parastabletoggle"/></td>`);
+                $(`#twotoggle${thevalue}`).val(sub2val);
+                $(`#${thevalue+5000}`).append(`<td class="parastable"><input id="threetoggle${thevalue}" class="parastabletoggle"/></td>`);
+                $(`#threetoggle${thevalue}`).val(sub3val);
+                $(`#${thevalue+5000}`).append(`<td class="parastable"><input id="fourtoggle${thevalue}" class="parastabletoggle"/></td>`);
+                $(`#fourtoggle${thevalue}`).val(sub4val);
+                $(`#${thevalue+5000}`).append(`<td class="parastable" id="total${thevalue}">${totalval}</td>`);
+                $(`#${thevalue+5000}`).append(`<td class="parastable"><button id="msave${thevalue}" class="markssave">save</button></td>`);
+
+          }
+
+          function createmarksrow(thevalue){
+                let mname=$("#marksname").text();
+                let sub1val=$("#one").val();
+                let sub2val=$("#two").val();
+                let sub3val=$("#three").val();
+                let sub4val=$("#four").val();
+                let totalval=$("#total").text();
+            
+                let newelement={
+                    roll: thevalue,
+                    N:mname,
+                    s1: sub1val,
+                    s2: sub2val,
+                    s3: sub3val,
+                    s4: sub4val,
+                    t: totalval,
+                };
+                marksList.push(newelement);
+                
+                $("#marksname").text("");
+                $("#one").val(0);
+                $("#two").val(0);
+                $("#three").val(0);
+                $("#four").val(0);
+                $("#total").text(0);
+                createmarkselements(thevalue,mname,sub1val,sub2val,sub3val,sub4val,totalval);
+          }
+
+          $("#savebtn").click(function(){
+            let thevalue = dropdown.options[dropdown.selectedIndex].value;
+            //let thevalue = $(this).val();
+            console.log(thevalue);
+            console.log("got into save");
+            let markschecker = marksList.some((e)=> e.roll === thevalue);
+            if(!markschecker){
+                createmarksrow(thevalue);
+            }
+            else{
+                console.log("items available in markslist");
+                $(`#${thevalue}`).attr('style', 'display:table-row');
+                $(`#${thevalue+5000}`).attr('style', 'display:none;');
+                if (toggler){
+                    
+                    let mname = $("#marksname").text();
+                    let sub1val=parseInt($(`#onetoggle${thevalue}`).val());
+                    let sub2val=parseInt($(`#twotoggle${thevalue}`).val());
+                    let sub3val=parseInt($(`#threetoggle${thevalue}`).val());
+                    let sub4val=parseInt($(`#fourtoggle${thevalue}`).val());
+                    let totalval=parseInt(sub1val+sub2val+sub3val+sub4val);
+                    for(let i=0; i<marksList.length; i++){
+                        if(marksList[i].roll == thevalue){
+                            marksList[i].N = mname,
+                            marksList[i].s1 = sub1val,
+                            marksList[i].s2 = sub2val,
+                            marksList[i].s3 = sub3val,
+                            marksList[i].s4 = sub4val,
+                            marksList[i].t = totalval
+                        }
+                    }
+                    console.log("toggler is onn");
+                    
+                    $(`#total${thevalue}`).text(totalval);
+                    toggler=false;
+                }
+                else{
+                let mname = $("#marksname").text();
+                let sub1val=parseInt($(`#one`).val());
+                let sub2val=parseInt($(`#two`).val());
+                let sub3val=parseInt($(`#three`).val());
+                let sub4val=parseInt($(`#four`).val());
+                let totalval=parseInt($(`#total`).text());
+                for(let i=0; i<marksList.length; i++){
+                    if(marksList[i].roll == thevalue){
+                        marksList[i].N = mname,
+                        marksList[i].s1 = sub1val,
+                        marksList[i].s2 = sub2val,
+                        marksList[i].s3 = sub3val,
+                        marksList[i].s4 = sub4val,
+                        marksList[i].t = totalval
+                        console.log("yes");
+                    }
+                }
+                console.log("toggler is off");
+                }
+                for (let element of marksList){
+                    partMarksDelete(element.roll);
+                }
+                for (let element of marksList){
+                    let{roll,N,s1,s2,s3,s4,t}=element;
+                    createmarkselements(roll,N,s1,s2,s3,s4,t);
+                }
+                console.log("rendered");
+            }
+            dropdown.selectedIndex = 0;
+            $("#marksname").text("");
+            $("#one").val(0);
+            $("#two").val(0);
+            $("#three").val(0);
+            $("#four").val(0);
+            $("#total").text(0);
+          });
+          
+          
+          $(document).on('click','.markssave',function(){
+            var id = $(this).attr("id"); 
+            let inde = id.slice(5);
+            let thevalue = inde;
+            console.log(thevalue);
+            console.log("got into save marks secondary");
+            let markschecker = marksList.some((e)=> e.roll == thevalue);
+            if(!markschecker){
+                createmarksrow(thevalue);
+            }
+            else{
+                console.log("save button marks");
+                $(`#${thevalue}`).attr('style', 'display:table-row');
+                $(`#${thevalue+5000}`).attr('style', 'display:none;');
+                if (toggler){
+                
+                    let mname = $("#marksname").text();
+                    let sub1val=parseInt($(`#onetoggle${thevalue}`).val());
+                    let sub2val=parseInt($(`#twotoggle${thevalue}`).val());
+                    let sub3val=parseInt($(`#threetoggle${thevalue}`).val());
+                    let sub4val=parseInt($(`#fourtoggle${thevalue}`).val());
+                    let totalval=parseInt(sub1val+sub2val+sub3val+sub4val);
+                    for(let i=0; i<marksList.length; i++){
+                        if(marksList[i].roll === thevalue){
+                            marksList[i].N = mname,
+                            marksList[i].s1 = sub1val,
+                            marksList[i].s2 = sub2val,
+                            marksList[i].s3 = sub3val,
+                            marksList[i].s4 = sub4val,
+                            marksList[i].t = totalval
+                        }
+                    }
+                
+                    $(`#total${thevalue}`).text(totalval);
+                    toggler=false;
+                }
+                else{
+                let mname = $("#marksname").text();
+                let sub1val=parseInt($(`#onetoggle${thevalue}`).val());
+                let sub2val=parseInt($(`#twotoggle${thevalue}`).val());
+                let sub3val=parseInt($(`#threetoggle${thevalue}`).val());
+                let sub4val=parseInt($(`#fourtoggle${thevalue}`).val());
+                let totalval=parseInt($(`#total${thevalue}`).text());
+                for(let i=0; i<marksList.length; i++){
+                    if(marksList[i].roll === thevalue){
+                        marksList[i].N = mname,
+                        marksList[i].s1 = sub1val,
+                        marksList[i].s2 = sub2val,
+                        marksList[i].s3 = sub3val,
+                        marksList[i].s4 = sub4val,
+                        marksList[i].t = totalval
+                    }
+                }
+                }
+                for (let element of marksList){
+                    partMarksDelete(element.roll);
+                }
+                for (let element of marksList){
+                    let{roll,N,s1,s2,s3,s4,t}=element;
+                    createmarkselements(roll,N,s1,s2,s3,s4,t);
+                }
+            }
+            dropdown.selectedIndex = 0;
+            $("#marksname").text("");
+            $("#one").val(0);
+            $("#two").val(0);
+            $("#three").val(0);
+            $("#four").val(0);
+            $("#total").text(0);
+            });
+
+        });
+    </script>
+</body>
+</html>

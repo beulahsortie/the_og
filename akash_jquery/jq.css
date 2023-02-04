@@ -1,0 +1,99 @@
+
+
+
+.output{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 500px;
+    height: 500px;
+}
+.rowcard{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 500px;
+    height: 40px;
+}
+.heads{
+    font-family: "roboto";
+    font-size: 20px;
+    font-weight: bold;
+    width: 100px;
+}
+.paras{
+    font-family: "roboto";
+    font-size: 15px;
+    font-weight: normal;
+    width: 100px;
+}
+.parastable{
+    text-align: center;
+    font-family: "roboto";
+    font-size: 15px;
+    font-weight: normal;
+    width: 100px;
+}
+.parastabletoggle{
+    text-align: center;
+    font-family: "roboto";
+    font-size: 15px;
+    font-weight: normal;
+    width: 80px;
+}
+.marks{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 800px;
+    height: 40px;
+    margin-top: 20px;
+    margin-left: 30px;
+}
+.marksname{
+    width: 100px;
+}
+.dropdownselect{
+    width: 60px;
+    height: 40px;
+}
+.marksheet{
+    width: 850px;
+    height: 50px;
+}
+.marksinput{
+    width: 50px;
+    height: 20px;
+    padding-left: 5px;
+    margin-left: 30px;
+}
+.marksinputhead{
+    width: 65px;
+    height: 20px;
+    margin-left: 10px;
+}
+.entermarks{
+    font-size: 20px;
+    font-family: "roboto";
+    font-weight: bold;
+    color: dimgray;
+}
+.tabledesign{
+    
+    
+}
+.savebtn{
+    margin-left: 100px;
+}
+.space{
+    margin-left: 30px;
+}
+.maindelete{
+
+}
+.mainedit{
+    
+}
